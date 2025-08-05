@@ -1,0 +1,9 @@
+Corsy|https://github.com/s0md3v/Corsy.git
+ghauri|https://github.com/r0oth3x49/ghauri.git
+XSStrike|https://github.com/s0md3v/XSStrike.git
+ParamSpider|https://github.com/devanshbatham/ParamSpider.git
+SecretFinder|https://github.com/m4ll0k/SecretFinder.git
+openredirex|https://github.com/devanshbatham/openredirex.git
+loxs|https://github.com/coffinxp/loxs.git
+lostfuzzer|https://github.com/coffinxp/lostfuzzer.git
+lazyegg|https://github.com/schooldropout1337/lazyegg.git

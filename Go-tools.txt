@@ -1,0 +1,16 @@
+shortscan github.com/bitquark/shortscan/cmd/shortscan@latest
+subfinder github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+nuclei github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+httpx github.com/projectdiscovery/httpx/cmd/httpx@latest
+gau github.com/lc/gau/v2/cmd/gau@latest
+naabu github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+anew github.com/tomnomnom/anew@latest
+qsreplace github.com/tomnomnom/qsreplace@latest
+gf github.com/tomnomnom/gf@latest
+assetfinder github.com/tomnomnom/assetfinder@latest
+hakrawler github.com/hakluke/hakrawler@latest
+urlfinder github.com/projectdiscovery/urlfinder/cmd/urlfinder@latest
+katana github.com/projectdiscovery/katana/cmd/katana@latest
+Gxss github.com/KathanP19/Gxss@latest
+kxss github.com/Emoe/kxss@latest
+jsleak github.com/channyein1337/jsleak@latest
