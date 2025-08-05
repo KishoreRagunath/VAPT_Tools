@@ -1,0 +1,4 @@
+OneListForAll|https://github.com/six2dez/OneListForAll.git
+SecLists|https://github.com/danielmiessler/SecLists.git
+Nuclei-templates|https://github.com/coffinxp/nuclei-templates.git
+GFpattren|https://github.com/coffinxp/GFpattren.git
