@@ -1,7 +1,7 @@
 # Format: os|arch|package|install_command
 #linux aarch64rm64:
-linux|aarch64|searchsploit|snap install searchsploit
-linux|amd64|searchsploit|snap install searchsploit
+Linux|aarch64|searchsploit|snap install searchsploit
+Linux|amd64|searchsploit|snap install searchsploit
 
 # Darwin ARM64 for GUI apps using brew cask
 Darwin|arm64|zenmap|brew install --cask zenmap
