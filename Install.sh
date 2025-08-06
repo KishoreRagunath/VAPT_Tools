@@ -73,7 +73,7 @@ install_system_packages() {
         local pkgs=()
         for ((i=1; i < ${#tokens[@]}; i++)); do
             tok=${tokens[i]}
-            if [[ "$tok" =~ ^(amd64|arm64|x86_64)$ ]]; then
+            if [[ "$tok" =~ ^(amd64|aarch64|arm64|x86_64)$ ]]; then
                 archs+=("$tok")
             else
                 pkgs=("${tokens[@]:i}")
@@ -119,7 +119,7 @@ install_system_packages() {
         local i=1
         for (( ; i < ${#tokens[@]}; i++ )); do
             tok=${tokens[i]}
-            if [[ "$tok" =~ ^(amd64|arm64|x86_64)$ ]]; then
+            if [[ "$tok" =~ ^(amd64|aarch64|arm64|x86_64)$ ]]; then
                 archs+=("$tok")
             else
                 break
@@ -183,6 +183,14 @@ install_uro() {
 # Go installation with version check and OS logic
 # ------------------------------------------------
 find_latest_go_release() {
+    # Only attempt on Linux, else exit early
+    local os_name
+    os_name=$(uname -s)
+    if [[ "$os_name" != "Linux" ]]; then
+        print_error "Go install only supported on Linux. Detected OS: $os_name"
+        exit 1
+    fi
+
     local release_list="https://go.dev/dl/"
     local fetch_cmd=""
 
@@ -195,100 +203,88 @@ find_latest_go_release() {
         exit 1
     fi
 
+    # Prefer JSON API with jq if possible
     if has_cmd jq; then
         $fetch_cmd "${release_list}?mode=json" | jq -r '.[].version' | \
-        grep -v -E '(beta|rc)' | sed 's/go//' | sort -V | tail -n1
+        grep -v -E '(beta|rc)' | \
+        grep -E '^go[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^go//' | sort -V | tail -n1
     else
+        # Fallback HTML parsing: match only 3-part versions i.e. major.minor.patch
         $fetch_cmd "$release_list" | \
-        grep -oE 'go[0-9]+\.[0-9]+(\.[0-9]+)?' | \
-        grep -v -E '(beta|rc)' | sed 's/go//' | sort -V | tail -n1
+        grep -oE 'go[0-9]+\.[0-9]+\.[0-9]+' | \
+        grep -v -E '(beta|rc)' | sed 's/^go//' | sort -V | tail -n1
     fi
 }
 
+
 install_go() {
-    # Detect current Go version (if installed)
+    if [[ "$(uname -s)" != "Linux" ]]; then
+        print_info "Go install is only for Linux. Detected OS: $(uname -s). Skipping."
+        return
+    fi
+
     local current_version=""
-    if is_installed go; then
+    if command -v go &>/dev/null; then
         current_version=$(go version | awk '{print $3}' | sed 's/go//')
         print_info "Found installed Go version: $current_version"
     else
         print_info "No Go installation found."
     fi
 
-    # Skip Go install on Darwin
-    if [[ "$OS" == "Darwin" ]]; then
-        print_info "Darwin detected; skipping Go install/upgrade per instruction."
-        return
-    fi
-
-    # Find latest Go release available
     local latest_version
     latest_version=$(find_latest_go_release)
+
     if [[ -z "$latest_version" ]]; then
-        print_error "Failed to detect latest Go version. Exiting."
+        print_error "Could not detect latest Go version."
         exit 1
     fi
+
     print_info "Latest Go version available: $latest_version"
 
-    # Version check using new version_lt
     if [[ -n "$current_version" ]] && ! version_lt "$current_version" "$latest_version"; then
-        print_info "Installed Go version ($current_version) is up-to-date or newer than latest ($latest_version). Skipping installation."
+        print_info "Installed Go version ($current_version) is up-to-date."
         return
     fi
 
-    # Determine proper Go tarball according to architecture
-    local arch_tar
-    case "$ARCH" in
-        amd64|x86_64) arch_tar="amd64" ;;
-        arm64|aarch64) arch_tar="arm64" ;;
-        *) print_error "Unsupported architecture $ARCH for Go installation."; exit 1 ;;
+    local arch
+    arch=$(uname -m)
+    case "$arch" in
+        x86_64|amd64) arch="amd64" ;;
+        aarch64|arm64) arch="arm64" ;;
+        *)
+            print_error "Unsupported architecture: $arch"
+            exit 1
+            ;;
     esac
 
-    local go_tar="go${latest_version}.Linux-${arch_tar}.tar.gz"
+    local go_tar="go${latest_version}.linux-${arch}.tar.gz"
     local go_url="https://go.dev/dl/${go_tar}"
     local tmp_tar="/tmp/${go_tar}"
 
-    print_info "Downloading Go $latest_version from $go_url..."
-    if [[ -f "$tmp_tar" ]]; then
-        print_info "Go archive already exists at $tmp_tar, verifying..."
-        if ! tar -tzf "$tmp_tar" > /dev/null 2>&1; then
-            print_info "Existing archive is corrupted or incomplete. Deleting and re-downloading..."
-            rm -f "$tmp_tar"
-        else
-            print_info "Existing archive verified."
-        fi
-    fi
-    if [[ -f "$tmp_tar" ]]; then
-        print_info "Go archive already downloaded at $tmp_tar"
+    print_info "Downloading $go_url"
+    if command -v curl &>/dev/null; then
+        curl -sSL -o "$tmp_tar" "$go_url" || { print_error "curl download failed"; exit 1; }
     else
-        if has_cmd wget; then
-            wget --connect-timeout=5 -q -O "$tmp_tar" "$go_url" || { print_error "Failed to download Go archive"; exit 1; }
-        elif has_cmd curl; then
-            curl --connect-timeout 5 -sSL -o "$tmp_tar" "$go_url" || { print_error "Failed to download Go archive"; exit 1; }
-        fi
+        wget -q -O "$tmp_tar" "$go_url" || { print_error "wget download failed"; exit 1; }
     fi
 
-    print_info "Removing previous Go installation from /usr/local/go ..."
-    $SUDO rm -rf /usr/local/go
+    print_info "Removing previous Go installation from /usr/local/go"
+    sudo rm -rf /usr/local/go
 
-    print_info "Extracting Go archive to /usr/local ..."
-    $SUDO tar -C /usr/local -xzf "$tmp_tar"
+    print_info "Extracting $tmp_tar to /usr/local"
+    sudo tar -xzf "$tmp_tar" -C /usr/local || { print_error "Extraction failed"; exit 1; }
 
-    # Add Go bin paths to PATH and profile
-    add_path_if_missing "$HOME/go/bin"
-    add_path_if_missing "$HOME/.local/bin"
-
-    export CGO_ENABLED=1
-
-    print_info "Go $latest_version installed/upgraded successfully."
-    
-    if [[ "$CURRENT_SHELL" == "bash" ]]; then
-        print_info "Sourcing $PROFILE to apply changes in current shell"
-        source "$PROFILE"
-    fi
-
-    print_info "Please open a new terminal or run 'source $PROFILE' to apply changes."
+    # Update PATH (temporary, user should update their profile)
+    export PATH="/usr/local/go/bin:$PATH"
+    print_info "Go $latest_version installed. Please add /usr/local/go/bin to PATH permanently."
 }
+
+# Helper to compare semantic versions (returns true if $1 < $2)
+version_lt() {
+    [ "$1" != "$2" ] && [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$1" ]
+}
+
+
 # ------------------------------------------------
 # Utility functions
 # ------------------------------------------------
