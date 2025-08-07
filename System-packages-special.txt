@@ -3,6 +3,7 @@
 Linux|aarch64|searchsploit|snap install searchsploit
 Linux|amd64|searchsploit|snap install searchsploit
 Linux|x86_64|searchsploit|snap install searchsploit
+
 # Darwin ARM64 for GUI apps using brew cask
 Darwin|arm64|zenmap|brew install --cask zenmap metasploit
 
