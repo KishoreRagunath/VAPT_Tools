@@ -280,29 +280,39 @@ install_go() {
 version_lt() {
     [ "$1" != "$2" ] && [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$1" ]
 }
-
-# Update PATH (temporary, user should update their profile)
-add_path_if_missing "/usr/local/go/bin"
-add_path_if_missing "$HOME/go/bin"
-add_path_if_missing "$HOME/.local/bin"
 # ------------------------------------------------
 # Utility functions
 # ------------------------------------------------
 add_path_if_missing() {
     local path_entry="$1"
-    # Escape slashes and square brackets for grep
-    local escaped_path=$(printf '%s\n' "$path_entry" | sed -e 's/[][\\/^$.*]/\\&/g')
-    if ! grep -Eq "(^|:)$escaped_path(:|\$)" <<< "$PATH"; then
-        # Also add to profile if not present
-        if ! grep -qxF "export PATH=\"\$PATH:$path_entry\"" >> "$PROFILE"; then
-            echo "export PATH=\"\$PATH:$path_entry\"" >> "$PROFILE"
-            print_info "Added $path_entry to PATH in $PROFILE"
+    local profile="${PROFILE:-$HOME/.bashrc}"  # Default profile if $PROFILE not set
+
+    # Escape slashes and special regex characters for grep
+    local escaped_path=$(printf '%s\n' "$path_entry" | sed -e 's/[]\/$*.^[]/\\&/g')
+
+    # Check if path is already in the current PATH environment variable
+    if ! grep -Eq "(^|:)$escaped_path(:|$)" <<< "$PATH"; then
+        # Check if export command is already present in the profile file
+        if ! grep -qxF "export PATH=\"\$PATH:$path_entry\"" "$profile"; then
+            echo "export PATH=\"\$PATH:$path_entry\"" >> "$profile"
+            # Inform user (ensure print_info is defined)
+            print_info "Added $path_entry to PATH in $profile"
+        else
+            print_info "Path $path_entry already in $profile"
         fi
+
+        # Export PATH in the current shell session
         export PATH="$PATH:$path_entry"
     else
         print_info "Path $path_entry already in PATH"
     fi
 }
+
+# Usage
+add_path_if_missing "/usr/local/go/bin"
+add_path_if_missing "$HOME/go/bin"
+add_path_if_missing "$HOME/.local/bin"
+
 # ------------------------------------------------
 # Install Go tools from Go-tools.txt
 # ------------------------------------------------
