@@ -273,11 +273,6 @@ install_go() {
 
     print_info "Extracting $tmp_tar to /usr/local"
     sudo tar -xzf "$tmp_tar" -C /usr/local || { print_error "Extraction failed"; exit 1; }
-
-    # Update PATH (temporary, user should update their profile)
-    add_path_if_missing "/usr/local/go/bin"
-    add_path_if_missing "$HOME/go/bin"
-    add_path_if_missing "$HOME/.local/bin"
     print_info "Go $latest_version installed. Please add /usr/local/go/bin to PATH permanently."
 }
 
@@ -286,7 +281,10 @@ version_lt() {
     [ "$1" != "$2" ] && [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$1" ]
 }
 
-
+# Update PATH (temporary, user should update their profile)
+add_path_if_missing "/usr/local/go/bin"
+add_path_if_missing "$HOME/go/bin"
+add_path_if_missing "$HOME/.local/bin"
 # ------------------------------------------------
 # Utility functions
 # ------------------------------------------------
