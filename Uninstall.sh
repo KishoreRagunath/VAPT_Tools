@@ -62,7 +62,7 @@ remove_system_packages() {
             local pkgs=()
             for ((i=1; i < ${#tokens[@]}; i++)); do
                 tok=${tokens[i]}
-                if [[ "$tok" =~ ^(amd64|arm64|x86_64)$ ]]; then
+                if [[ "$tok" =~ ^(amd64|aarch64|arm64|x86_64)$ ]]; then
                     archs+=("$tok")
                 else
                     pkgs=("${tokens[@]:i}")
@@ -111,7 +111,7 @@ remove_system_packages() {
             local i=1
             for (( ; i < ${#tokens[@]}; i++ )); do
                 tok=${tokens[i]}
-                if [[ "$tok" =~ ^(amd64|arm64|x86_64)$ ]]; then
+                if [[ "$tok" =~ ^(amd64|aarch64|arm64|x86_64)$ ]]; then
                     archs+=("$tok")
                 else
                     break
