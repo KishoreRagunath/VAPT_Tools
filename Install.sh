@@ -146,20 +146,12 @@ install_system_packages() {
 # Upgrade Python setuptools
 # ------------------------------------------------
 upgrade_setuptools() {
-    if [[ "$OS" == "Linux" ]] && [[ "$ARCH" != "x86_64" ]]; then
-        # For non-x86_64 Linux, try to use --break-system-packages if supported
-        if python3 -m pip install --help 2>&1 | grep -q -- '--break-system-packages'; then
+    case "$OS" in
+        Linux)
             python3 -m pip install --upgrade setuptools --break-system-packages || true
-            return
-        fi
-    fi
-    # For all others, just upgrade without --break-system-packages
-    if [[ "$OS" == "Linux" ]]; then
-        python3 -m pip install --upgrade setuptools || true
-    fi
-    # No action for other OS types
+            ;;
+    esac
 }
-
 # ------------------------------------------------
 # uro installation
 # ------------------------------------------------
@@ -443,12 +435,7 @@ setup_tool_dynamic() {
     local py3="python3"
     local shell_bin="bash"
     local setup_suffix=""
-
-    if [[ "$OS" == "Linux" && "$ARCH" != "x86_64" ]]; then
-        if python3 -m pip install --help | grep -q -- '--break-system-packages'; then
-            setup_suffix="--break-system-packages"
-        fi
-    fi
+    [[ "$OS" == "Linux" || "$OS" == "Darwin" ]] && setup_suffix="--break-system-packages"
 
     local tool_path="$INSTALL_HOME/$tool_dir"
     if [[ -d "$tool_path" && ! -f "$tool_path/$marker" ]]; then
