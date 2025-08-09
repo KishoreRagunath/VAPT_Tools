@@ -85,7 +85,7 @@ remove_system_packages() {
                                 Darwin)
                                     if brew list "$pkg" &>/dev/null; then
                                         print_info "Uninstalling brew package $pkg ..."
-                                        sudo brew uninstall --ignore-dependencies "$pkg"
+                                        brew uninstall --ignore-dependencies "$pkg"
                                     else
                                         print_info "Package $pkg not installed, skipping."
                                     fi
@@ -167,8 +167,7 @@ remove_go() {
         "/usr/local/go/bin"
         "$HOME/go/bin"
         "$HOME/.local/bin"
-        "$HOME/Library/Python/3.9/bin"
-    )
+        )
     for pattern in "${go_paths[@]}"; do
         sed_inplace "\|$pattern|d" "$PROFILE"
     done
