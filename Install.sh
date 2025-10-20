@@ -293,12 +293,12 @@ add_path_if_missing() {
     # Check if path is already in the current PATH environment variable
     if ! grep -Eq "(^|:)$escaped_path(:|$)" <<< "$PATH"; then
         # Check if export command is already present in the profile file
-        if ! grep -qxF "export PATH=\"\$PATH:$path_entry\"" "$profile"; then
-            echo "export PATH=\"\$PATH:$path_entry\"" >> "$profile"
+        if ! grep -qxF "export PATH=\"\$PATH:$path_entry\"" "$PROFILE"; then
+            echo "export PATH=\"\$PATH:$path_entry\"" >> "$PROFILE"
             # Inform user (ensure print_info is defined)
-            print_info "Added $path_entry to PATH in $profile"
+            print_info "Added $path_entry to PATH in $PROFILE"
         else
-            print_info "Path $path_entry already in $profile"
+            print_info "Path $path_entry already in $PROFILE"
         fi
 
         # Export PATH in the current shell session
