@@ -310,9 +310,9 @@ add_common_paths() {
 
     # Declare paths to check and add
     local common_paths=(
+        "$HOME/.local/bin"
         "/usr/local/go/bin"
         "$HOME/go/bin"
-        "$HOME/.local/bin"
     )
 
     for path_entry in "${common_paths[@]}"; do
@@ -550,8 +550,8 @@ main() {
     install_uro
     upgrade_setuptools
     install_go
-    install_go_tools
     add_common_paths
+    install_go_tools
     setup_gau_toml
     setup_gf
     clone_repos "$SCRIPT_DIR/Tools.txt"
