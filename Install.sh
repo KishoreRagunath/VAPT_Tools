@@ -12,22 +12,37 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Environment detection
 # ------------------------------------------------
 detect_environment() {
-OS=$(uname)
-ARCH=$(uname -m)
+    OS=$(uname -s)
+    ARCH=$(uname -m)
 
-if [[ "$OS" == "Darwin" ]]; then
-    CURRENT_SHELL="zsh"
-    PROFILE="$HOME/.zshrc"
-elif [[ "$OS" == "Linux" ]]; then
-    CURRENT_SHELL=$(basename "$SHELL")
-    if [[ "$CURRENT_SHELL" != "bash" && "$CURRENT_SHELL" != "zsh" ]]; then
-        CURRENT_SHELL="bash"
-    fi
-    PROFILE="$HOME/.${CURRENT_SHELL}rc"
-else
-    CURRENT_SHELL="bash"
-    PROFILE="$HOME/.bashrc"
-fi
+    case "$OS" in
+        Darwin)
+            # macOS typically uses zsh
+            if [[ -n "$SHELL" && "$(basename "$SHELL")" == "bash" ]]; then
+                CURRENT_SHELL="bash"
+                PROFILE="$HOME/.bashrc"
+            else
+                CURRENT_SHELL="zsh"
+                PROFILE="$HOME/.zshrc"
+            fi
+            ;;
+        Linux)
+            # Linux typically uses bash
+            CURRENT_SHELL=$(basename "$SHELL")
+            if [[ "$CURRENT_SHELL" == "zsh" ]]; then
+                PROFILE="$HOME/.zshrc"
+            else
+                CURRENT_SHELL="bash"
+                PROFILE="$HOME/.bashrc"
+            fi
+            ;;
+        *)
+            print_error "Unsupported OS: $OS. Defaulting to bash."
+            CURRENT_SHELL="bash"
+            PROFILE="$HOME/.bashrc"
+            ;;
+    esac
+
     [[ -f "$PROFILE" ]] || touch "$PROFILE"
 
     if [[ $EUID -eq 0 ]]; then
@@ -283,35 +298,46 @@ version_lt() {
 # ------------------------------------------------
 # Utility functions
 # ------------------------------------------------
-add_path_if_missing() {
-    local path_entry="$1"
-    local profile="${PROFILE:-$HOME/.bashrc}"  # Default profile if $PROFILE not set
-
-    # Escape slashes and special regex characters for grep
-    local escaped_path=$(printf '%s\n' "$path_entry" | sed -e 's/[]\/$*.^[]/\\&/g')
-
-    # Check if path is already in the current PATH environment variable
-    if ! grep -Eq "(^|:)$escaped_path(:|$)" <<< "$PATH"; then
-        # Check if export command is already present in the profile file
-        if ! grep -qxF "export PATH=\"\$PATH:$path_entry\"" "$PROFILE"; then
-            echo "export PATH=\"\$PATH:$path_entry\"" >> "$PROFILE"
-            # Inform user (ensure print_info is defined)
-            print_info "Added $path_entry to PATH in $PROFILE"
-        else
-            print_info "Path $path_entry already in $PROFILE"
-        fi
-
-        # Export PATH in the current shell session
-        export PATH="$PATH:$path_entry"
-    else
-        print_info "Path $path_entry already in PATH"
+# ------------------------------------------------
+# Add valid paths to shell profile safely
+# ------------------------------------------------
+add_common_paths() {
+    # Ensure environment is detected
+    if [[ -z "${PROFILE:-}" ]]; then
+        print_error "PROFILE variable not set. Run detect_environment() first."
+        exit 1
     fi
+
+    # Declare paths to check and add
+    local common_paths=(
+        "/usr/local/go/bin"
+        "$HOME/go/bin"
+        "$HOME/.local/bin"
+    )
+
+    for path_entry in "${common_paths[@]}"; do
+        # Check if directory exists before adding
+        if [[ -d "$path_entry" ]]; then
+            # Escape for grep
+            local escaped
+            escaped=$(printf '%s\n' "$path_entry" | sed -e 's/[]\/$*.^[]/\\&/g')
+
+            # Add to profile if not already present
+            if ! grep -qxF "export PATH=\"\$PATH:$path_entry\"" "$PROFILE"; then
+                echo "export PATH=\"\$PATH:$path_entry\"" >> "$PROFILE"
+                print_info "Added $path_entry to PATH in $PROFILE"
+            else
+                print_info "Path $path_entry already exists in $PROFILE"
+            fi
+
+            # Export for current session
+            export PATH="$PATH:$path_entry"
+        else
+            print_info "Skipped $path_entry (directory does not exist)"
+        fi
+    done
 }
 
-# Usage
-add_path_if_missing "/usr/local/go/bin"
-add_path_if_missing "$HOME/go/bin"
-add_path_if_missing "$HOME/.local/bin"
 
 # ------------------------------------------------
 # Install Go tools from Go-tools.txt
@@ -520,11 +546,12 @@ create_aliases() {
 
 main() {
     detect_environment
-    upgrade_setuptools
     install_system_packages
     install_uro
+    upgrade_setuptools
     install_go
     install_go_tools
+    add_common_paths
     setup_gau_toml
     setup_gf
     clone_repos "$SCRIPT_DIR/Tools.txt"
