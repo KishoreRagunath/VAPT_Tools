@@ -2,7 +2,7 @@
 set -euo pipefail
 
 print_info()   { echo -e "\033[1;34m[INFO]\033[0m $1"; }
-print_error()  { echo -e "\033[1;31m[ERROR]\033[0m $1" >&2; }.
+print_error()  { echo -e "\033[1;31m[ERROR]\033[0m $1" >&2; }
 is_installed() { command -v "$1" >/dev/null 2>&1; }
 check_file_exists() { [[ -f "$1" ]] || { print_error "$1 not found in $SCRIPT_DIR!"; exit 1; }; }
 
