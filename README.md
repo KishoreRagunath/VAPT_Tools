@@ -1,4 +1,4 @@
-# VAPT Toolset
+# VAPT Tools
 
 A collection of scripts and security tools for **Vulnerability Assessment and Penetration Testing (VAPT)**.
 
