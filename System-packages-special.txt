@@ -3,7 +3,7 @@
 Linux|aarch64|searchsploit|snap install searchsploit
 Linux|amd64|searchsploit|snap install searchsploit
 Linux|amd64|dalfox|snap install dalfox
-
+Linux|aarch64|dalfox|snap install dalfox
 # Darwin ARM64 for GUI apps using brew cask
 Darwin|arm64|zenmap|brew install --cask zenmap
 Darwin|arm64|metasploit|brew install --cask metasploit
