@@ -14,3 +14,12 @@ katana github.com/projectdiscovery/katana/cmd/katana@latest
 Gxss github.com/KathanP19/Gxss@latest
 kxss github.com/Emoe/kxss@latest
 jsleak github.com/channyein1337/jsleak@latest
+github-subdomains github.com/gwen001/github-subdomains@latest
+shosubgo github.com/incogbyte/shosubgo@latest
+alterx github.com/projectdiscovery/alterx/cmd/alterx@latest
+asnmap github.com/projectdiscovery/asnmap/cmd/asnmap@latest
+bxss github.com/ethicalhackingplayground/bxss/v2/cmd/bxss@latest
+subzy github.com/PentestPad/subzy@latest
+chaos github.com/projectdiscovery/chaos-client/cmd/chaos@latest
+airixss github.com/ferreiraklet/airixss@latest
+waybackurls github.com/tomnomnom/waybackurls@latest
