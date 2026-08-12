@@ -124,33 +124,7 @@ If the repository is already cloned, use `git pull` to get the latest changes.
 
 ```bash
 cd VAPT_Tools
-git pull origin main
-```
-
-### Recommended Update Workflow
-
-First check your local changes:
-
-```bash
-git status
-```
-
-If you have local changes that you want to keep temporarily:
-
-```bash
-git stash
-```
-
-Update the repository:
-
-```bash
-git pull origin main
-```
-
-Restore your local changes:
-
-```bash
-git stash pop
+git pull 
 ```
 
 ## Usage
