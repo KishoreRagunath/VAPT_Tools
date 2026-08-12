@@ -49,31 +49,31 @@ go version
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/KishoreRagunath/VAPT_Toolset.git
+git clone https://github.com/KishoreRagunath/VAPT_Tools.git
 ```
 
 ### 2. Navigate to the Project
 
 ```bash
-cd VAPT_Toolset
+cd VAPT_Tools
 ```
 
 ### 3. Give Execute Permission
 
 ```bash
-chmod +x install.sh
+chmod +x Install.sh
 ```
 
 If an uninstall script is available:
 
 ```bash
-chmod +x uninstall.sh
+chmod +x Uninstall.sh
 ```
 
 ### 4. Run the Installer
 
 ```bash
-sudo ./install.sh
+sudo ./Install.sh
 ```
 
 The installation script installs the tools according to their respective installation methods.
@@ -123,7 +123,7 @@ If the repository is already cloned, use `git pull` to get the latest changes.
 ### Simple Update
 
 ```bash
-cd VAPT_Toolset
+cd VAPT_Tools
 git pull origin main
 ```
 
@@ -261,7 +261,7 @@ Tools for authorized exploitation and security validation in controlled environm
 If an uninstall script is available:
 
 ```bash
-sudo ./uninstall.sh
+sudo ./Uninstall.sh
 ```
 
 The uninstall script removes tools according to their respective installation methods.
@@ -281,13 +281,13 @@ Permission denied
 Run:
 
 ```bash
-chmod +x install.sh
+chmod +x Install.sh
 ```
 
 Then:
 
 ```bash
-sudo ./install.sh
+sudo ./Install.sh
 ```
 
 ### Pipx Tool Not Found
