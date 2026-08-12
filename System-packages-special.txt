@@ -2,6 +2,7 @@
 #linux aarch64rm64:
 Linux|aarch64|searchsploit|snap install searchsploit
 Linux|amd64|searchsploit|snap install searchsploit
+Linux|amd64|dalfox|snap install dalfox
 
 # Darwin ARM64 for GUI apps using brew cask
 Darwin|arm64|zenmap|brew install --cask zenmap
